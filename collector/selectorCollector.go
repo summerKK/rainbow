@@ -180,3 +180,7 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 	seelog.Debugf("采集 url:%s 完成", s.currentUrl)
 	return
 }
+
+func (s *SelectorCollector) Config() *Config {
+	return s.config
+}

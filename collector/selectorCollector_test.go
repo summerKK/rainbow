@@ -5,13 +5,11 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-
-	"github.com/cihub/seelog"
-	"rainbow/result"
 )
 
 var configs *Configs
 var selectorCollector Collector
+var manager *Manager
 
 func init() {
 	rand.Seed(time.Now().Unix())
@@ -28,28 +26,15 @@ func init() {
 	if selectorCollector == nil {
 		panic("初始化失败")
 	}
+
+	manager = NewManager(selectorCollector)
 }
 
 func TestSelectorCollector(t *testing.T) {
-	resultChan := make(chan *result.Result)
-	doneChan := make(chan struct{})
-	go func() {
-		for selectorCollector.Next() {
-			errorList := selectorCollector.Collection(resultChan)
-			if len(errorList) > 0 {
-				_ = seelog.Error(errorList)
-			}
-		}
-		doneChan <- struct{}{}
-	}()
+	manager.Run()
+	for result := range manager.ResultChan() {
+		fmt.Printf("%+v\n", result)
+	}
 
-	go func() {
-		for r := range resultChan {
-			fmt.Printf("%+v\n", r)
-		}
-	}()
-
-	<-doneChan
-	close(resultChan)
-	time.Sleep(time.Second)
+	fmt.Println("采集完成")
 }

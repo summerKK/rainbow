@@ -72,7 +72,7 @@ func (s *subCollector) Next() (b bool) {
 	s.currentUrl = s.urls[s.currentIndex]
 	s.currentIndex++
 
-	seelog.Debugf("[subCollector] current url:%s", s.currentUrl)
+	seelog.Debugf("["+s.Name()+"]"+"current url:%s", s.currentUrl)
 	return true
 }
 

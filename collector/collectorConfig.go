@@ -3,15 +3,19 @@ package collector
 import (
 	"encoding/xml"
 	"os"
+	"strings"
 )
 
+const SYMOBL_POSITION = "$position"
+
 type Configs struct {
-	Configs []Config `xml:"config"`
+	Configs []*Config `xml:"config"`
 }
 
 type Config struct {
 	Name             string `xml:"name,attr"`
 	UrlFormat        string `xml:"urlFormat"`
+	Parameter        string `xml:"urlParameters"`
 	Type             Type   `xml:"collectType"`
 	Charset          string `xml:"charset"`
 	ValueNameRuleMap struct {
@@ -39,4 +43,17 @@ func NewCollectorConfig(filename string) *Configs {
 	}
 
 	return &configXml
+}
+
+func (s *Config) Verify() bool {
+	if s.UrlFormat == "" {
+		return false
+	}
+	if s.Charset == "" {
+		s.Charset = "utf-8"
+	} else {
+		s.Charset = strings.ToLower(s.Charset)
+	}
+
+	return true
 }

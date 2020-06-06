@@ -9,3 +9,8 @@ type Collector interface {
 }
 
 type Type uint8
+
+const (
+	COLLECTOR_TYPE_SELECTOR = iota
+	COLLECTOR_TYPE_REGEX
+)

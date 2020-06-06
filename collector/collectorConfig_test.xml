@@ -6,7 +6,7 @@
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="table" rule=".table tr:not(:first-child)"/>
+            <item name="$position" rule=".table tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(2)" attribute="data-ip"/>
             <item name="port" rule=".port-box"/>
             <item name="location" rule="td:nth-child(3)"/>
@@ -14,11 +14,14 @@
         </valueNameRuleMap>
     </config>
     <config name="89ip">
-        <urlFormat>http://www.89ip.cn/tiqv.php?sxb=&amp;tqsl=20&amp;ports=&amp;ktip=&amp;xl=on&amp;submit=%CC%E1++%C8%A1</urlFormat>
+        <urlFormat>
+            http://www.89ip.cn/tiqv.php?sxb=&amp;tqsl=20&amp;ports=&amp;ktip=&amp;xl=on&amp;submit=%CC%E1++%C8%A1
+        </urlFormat>
         <collectType>1</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="ip" rule="((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))):[1-9]\d*"/>
+            <item name="ip"
+                  rule="((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))):[1-9]\d*"/>
         </valueNameRuleMap>
     </config>
     <config name="data5u">
@@ -27,7 +30,7 @@
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="table" rule=".l2"/>
+            <item name="$position" rule=".l2"/>
             <item name="ip" rule="span:nth-child(1) li"/>
             <item name="port" rule="span:nth-child(2) li"/>
             <item name="speed" rule="span:nth-child(8) li"/>
@@ -38,7 +41,7 @@
         <collectType>0</collectType>
         <charset>gbk</charset>
         <valueNameRuleMap>
-            <item name="table" rule=".ctable tr:not(:first-child)"/>
+            <item name="$position" rule=".ctable tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(1)"/>
             <item name="port" rule="td:nth-child(2)"/>
             <item name="speed" rule="td:nth-child(5)"/>
@@ -51,7 +54,7 @@
         <collectType>0</collectType>
         <charset>gbk</charset>
         <valueNameRuleMap>
-            <item name="table" rule="#list tr:not(:first-child)"/>
+            <item name="$position" rule="#list tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(1)"/>
             <item name="port" rule="td:nth-child(2)"/>
             <item name="location" rule="td:nth-child(6)"/>
@@ -64,7 +67,7 @@
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="table" rule="#list tr:not(:first-child)"/>
+            <item name="$position" rule="#list tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(1)"/>
             <item name="port" rule="td:nth-child(2)"/>
             <item name="location" rule="td:nth-child(5)"/>
@@ -77,7 +80,7 @@
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="table" rule=".segment tr:not(:first-child)"/>
+            <item name="$position" rule=".segment tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(1)"/>
             <item name="port" rule="td:nth-child(2)"/>
             <item name="location" rule="td:nth-child(6)"/>
@@ -90,7 +93,7 @@
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="table" rule="#ip_list tr:not(:first-child)"/>
+            <item name="$position" rule="#ip_list tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(2)"/>
             <item name="port" rule="td:nth-child(3)"/>
             <item name="location" rule="td:nth-child(4) a"/>

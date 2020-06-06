@@ -73,6 +73,7 @@
             <item name="location" rule="td:nth-child(5)"/>
             <item name="speed" rule="td:nth-child(6)"/>
         </valueNameRuleMap>
+        <interval>2</interval>
     </config>
     <config name="kaixindaili">
         <urlFormat>http://www.kxdaili.com/ipList/%s.html</urlFormat>

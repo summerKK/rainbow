@@ -25,6 +25,7 @@ type Config struct {
 			Attr string `xml:"attribute,attr"`
 		} `xml:"item"`
 	} `xml:"valueNameRuleMap"`
+	Interval int `xml:"interval"`
 }
 
 func NewCollectorConfig(filename string) *Configs {
@@ -49,6 +50,12 @@ func (s *Config) Verify() bool {
 	if s.UrlFormat == "" {
 		return false
 	}
+
+	// 时间间隔默认2s
+	if s.Interval == 0 {
+		s.Interval = 2
+	}
+
 	if s.Charset == "" {
 		s.Charset = "utf-8"
 	} else {

@@ -34,6 +34,7 @@ func NewSelectorCollector(config *Config) *SelectorCollector {
 	// 验证参数
 	if !config.Verify() || config.Type != COLLECTOR_TYPE_SELECTOR {
 		_ = seelog.Errorf("参数配置错误:%+v", config)
+		return nil
 	}
 
 	selectorMap := make(map[string][]string)
@@ -163,7 +164,7 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 		}
 
 		// 过滤响应速度大于3秒的ip
-		if ip != "" && port > 0 && (speed >= 0 && speed < 3) {
+		if ip != "" && port > 0 && speed >= 0 {
 			r := &result.Result{
 				Ip:       ip,
 				Port:     port,
@@ -176,5 +177,6 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 
 	})
 
+	seelog.Debugf("采集 url:%s 完成", s.currentUrl)
 	return
 }

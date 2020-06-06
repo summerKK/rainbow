@@ -20,7 +20,7 @@ type subCollector struct {
 	selectorMap  map[string][]string
 }
 
-func verifyParams(config *Config, t Type) (*subCollector, error) {
+func newSubCollector(config *Config, t Type) (*subCollector, error) {
 	if config == nil {
 		return nil, errors.New("nil config")
 	}

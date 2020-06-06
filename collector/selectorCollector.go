@@ -19,8 +19,8 @@ type SelectorCollector struct {
 	*subCollector
 }
 
-func NewSelectorCollector(config *Config) *SelectorCollector {
-	collector, err := verifyParams(config, COLLECTOR_TYPE_SELECTOR)
+func NewSelectorCollector(config *Config) Collector {
+	collector, err := newSubCollector(config, COLLECTOR_TYPE_SELECTOR)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +36,6 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 	}
 
 	if len(errors) > 0 {
-		_ = seelog.Error(errors)
 		errorList = append(errorList, errors...)
 		return
 	}

@@ -3,6 +3,7 @@ package collector
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"testing"
 	"time"
 )
@@ -32,9 +33,22 @@ func init() {
 
 func TestSelectorCollector(t *testing.T) {
 	manager.Run()
-	for result := range manager.ResultChan() {
-		fmt.Printf("%+v\n", result)
-	}
+	var wg = &sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		for result := range manager.ResultChan() {
+			fmt.Printf("%+v\n", result)
+		}
+		wg.Done()
+	}()
 
+	go func() {
+		for err := range manager.ErrorChan() {
+			fmt.Printf("%+v\n", err)
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
 	fmt.Println("采集完成")
 }

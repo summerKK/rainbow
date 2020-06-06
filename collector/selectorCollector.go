@@ -16,75 +16,17 @@ import (
 )
 
 type SelectorCollector struct {
-	// 配置文件
-	config *Config
-	//  当前url
-	currentUrl   string
-	currentIndex int
-	urls         []string
-	selectorMap  map[string][]string
+	*subCollector
 }
 
 func NewSelectorCollector(config *Config) *SelectorCollector {
-	if config == nil {
-		_ = seelog.Error("[selectorCollector] nil config")
-		return nil
-	}
-
-	// 验证参数
-	if !config.Verify() || config.Type != COLLECTOR_TYPE_SELECTOR {
-		_ = seelog.Errorf("参数配置错误:%+v", config)
-		return nil
-	}
-
-	selectorMap := make(map[string][]string)
-
-	for _, item := range config.ValueNameRuleMap.Items {
-		if item.Name == "" || item.Rule == "" {
-			_ = seelog.Errorf("[selectorCollector] config:%s name和rule不能为空,请检查参数", item.Name)
-			continue
-		}
-		if item.Attr != "" {
-			selectorMap[item.Name] = []string{item.Rule, item.Attr}
-		} else {
-			selectorMap[item.Name] = []string{item.Rule}
-		}
-	}
-
-	// 通常 ValueNameRuleMap.Items的第一个是用来定位元素的大致位置,标识符:$position
-	if _, ok := selectorMap[SYMOBL_POSITION]; !ok {
-		_ = seelog.Error("[selectorCollector] valueNameRuleMap 缺少标识符:$position,请检查xml配置")
-		return nil
-	}
-
-	parameters := strings.Split(config.Parameter, ",")
-	urls, err := util.MakeUrls(config.UrlFormat, parameters)
+	collector, err := verifyParams(config, COLLECTOR_TYPE_SELECTOR)
 	if err != nil {
-		_ = seelog.Error(err)
-		return nil
+		panic(err)
 	}
-
 	return &SelectorCollector{
-		config:      config,
-		urls:        urls,
-		selectorMap: selectorMap,
+		collector,
 	}
-}
-
-func (s *SelectorCollector) Next() (b bool) {
-	if s.currentIndex >= len(s.urls) {
-		return false
-	}
-	s.currentUrl = s.urls[s.currentIndex]
-	s.currentIndex++
-
-	seelog.Debugf("[selectorCollector] current url:%s", s.currentUrl)
-	return true
-}
-
-func (s *SelectorCollector) Name() (name string) {
-	name = s.config.Name
-	return
 }
 
 func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorList []error) {
@@ -100,7 +42,7 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 	}
 
 	if response.StatusCode != http.StatusOK {
-		errorList = append(errorList, fmt.Errorf("[selectorCollector] GET %s failed,status code:%d", s.currentUrl, response.StatusCode))
+		errorList = append(errorList, fmt.Errorf("[SelectorCollector] GET %s failed,status code:%d", s.currentUrl, response.StatusCode))
 		return
 	}
 
@@ -179,8 +121,4 @@ func (s *SelectorCollector) Collection(resultChan chan<- *result.Result) (errorL
 
 	seelog.Debugf("采集 url:%s 完成", s.currentUrl)
 	return
-}
-
-func (s *SelectorCollector) Config() *Config {
-	return s.config
 }

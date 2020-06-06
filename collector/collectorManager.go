@@ -34,7 +34,9 @@ func (m *Manager) Run() {
 			}(collector)
 		}
 		wg.Wait()
+
 		close(m.resultChan)
+		close(m.errorChan)
 	}()
 }
 

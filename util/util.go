@@ -9,10 +9,21 @@ import (
 )
 
 func MakeUrls(urlFormat string, params []string) (urls []string, err error) {
-	if urlFormat == "" || len(params) == 0 || !strings.Contains(urlFormat, "%s") {
-		err = errors.New(`urlFormat/params 参数错误(url:http://baidu.com?s=%s),params:[]string{"1","2"}`)
+	if urlFormat == "" {
+		err = errors.New("urlFormat 不能为空")
 		return
 	}
+
+	if strings.Contains(urlFormat, "%s") && len(params) == 0 {
+		err = fmt.Errorf("params参数不能为空.urlFormat:%s params:%+v", urlFormat, params)
+		return
+	}
+
+	if !strings.Contains(urlFormat, "%s") {
+		urls = append(urls, urlFormat)
+		return
+	}
+
 	for _, param := range params {
 		if param == "" {
 			continue

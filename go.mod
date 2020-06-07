@@ -10,6 +10,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	go.etcd.io/bbolt v1.3.4
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
 	moul.io/http2curl v1.0.0 // indirect
 )

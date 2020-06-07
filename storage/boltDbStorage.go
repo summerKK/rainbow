@@ -102,7 +102,7 @@ func (b *BoltDbStorage) AddOrUpdate(k string, v interface{}) (err error) {
 
 	if err == nil {
 		if _, loaded := b.content.LoadOrStore(k, string(jsonStr)); !loaded {
-			atomic.AddUint64(&b.count, ^uint64(0))
+			atomic.AddUint64(&b.count, 1)
 		}
 	}
 

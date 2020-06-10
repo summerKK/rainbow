@@ -13,6 +13,70 @@ import (
 
 const chunkCount = 10
 
+type Verify struct {
+	saveChan   chan *result.Result
+	deleteChan chan *result.Result
+	s          storage.Storage
+	resultChan <-chan *result.Result
+}
+
+func NewVerify(resultChan <-chan *result.Result, s storage.Storage) (v *Verify, e error) {
+	if resultChan == nil || s == nil {
+		return nil, errors.New("nil resultChan/storage")
+	}
+
+	v = &Verify{
+		saveChan:   make(chan *result.Result, 50),
+		deleteChan: make(chan *result.Result, 50),
+		s:          s,
+		resultChan: resultChan,
+	}
+	go v.validation()
+
+	return v, nil
+}
+
+func (verify *Verify) ValidationAndDelete() {
+	collection := verify.s.GetAll()
+	var res result.Result
+	for _, v := range collection {
+		err := json.Unmarshal([]byte(v), &res)
+		if err != nil {
+			continue
+		}
+		verify.deleteChan <- &res
+	}
+}
+
+func (verify *Verify) ValidationAndSave() {
+	for r := range verify.resultChan {
+		verify.saveChan <- r
+	}
+}
+
+func (verify *Verify) validation() {
+	go func() {
+		for res := range verify.saveChan {
+			go func(res *result.Result) {
+				if util.VerifyProxyIp(res.Ip, res.Port) {
+					_ = verify.s.AddOrUpdate(res.Ip, res)
+					seelog.Debugf("insert %s to DB", res.Ip)
+				}
+			}(res)
+		}
+	}()
+
+	go func() {
+		for res := range verify.deleteChan {
+			go func(res *result.Result) {
+				if !util.VerifyProxyIp(res.Ip, res.Port) {
+					verify.s.Delete(res.Ip)
+				}
+			}(res)
+		}
+	}()
+}
+
 // 先获取所有数据,然后对数据进行分块(chunkCount).然后通过 chunkCount个goroutine并发验证IP
 // 需要注意最后一次的分块可能小于标准分块数量.需要额外处理(len(collection) % chunkCount)
 func ValidationAndDelete(s storage.Storage) error {

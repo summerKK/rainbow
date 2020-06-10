@@ -39,14 +39,17 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 		manager.Run()
 	}()
 
+	// 验证
+	validation, err := verify.NewVerify(manager.ResultChan(), s)
+	if err != nil {
+		panic(err)
+	}
+
 	// 把爬取的数据存下来
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := verify.ValidationAndSave(manager.ResultChan(), s)
-		if err != nil {
-			panic(err)
-		}
+		validation.ValidationAndSave()
 	}()
 
 	// 监控ip是否有效
@@ -56,10 +59,7 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 		for {
 			select {
 			case <-ticker.C:
-				err := verify.ValidationAndDelete(s)
-				if err != nil {
-					panic(err)
-				}
+				validation.ValidationAndDelete()
 			}
 		}
 	}()

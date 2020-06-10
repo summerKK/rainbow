@@ -14,8 +14,10 @@ import (
 const chunkCount = 10
 
 type Verify struct {
-	saveChan   chan *result.Result
-	deleteChan chan *result.Result
+	// 控制并发
+	saveChan chan struct{}
+	// 控制并发
+	deleteChan chan struct{}
 	s          storage.Storage
 	resultChan <-chan *result.Result
 }
@@ -26,12 +28,11 @@ func NewVerify(resultChan <-chan *result.Result, s storage.Storage) (v *Verify, 
 	}
 
 	v = &Verify{
-		saveChan:   make(chan *result.Result, 50),
-		deleteChan: make(chan *result.Result, 50),
+		saveChan:   make(chan struct{}, 20),
+		deleteChan: make(chan struct{}, 20),
 		s:          s,
 		resultChan: resultChan,
 	}
-	go v.validation()
 
 	return v, nil
 }
@@ -44,37 +45,33 @@ func (verify *Verify) ValidationAndDelete() {
 		if err != nil {
 			continue
 		}
-		verify.deleteChan <- &res
+		verify.deleteChan <- struct{}{}
+		go func() {
+			defer func() {
+				<-verify.deleteChan
+			}()
+
+			if !util.VerifyProxyIp(res.Ip, res.Port) {
+				verify.s.Delete(res.Ip)
+			}
+		}()
 	}
 }
 
 func (verify *Verify) ValidationAndSave() {
-	for r := range verify.resultChan {
-		verify.saveChan <- r
+	for res := range verify.resultChan {
+		verify.saveChan <- struct{}{}
+		go func(res *result.Result) {
+			defer func() {
+				<-verify.saveChan
+			}()
+
+			if util.VerifyProxyIp(res.Ip, res.Port) {
+				_ = verify.s.AddOrUpdate(res.Ip, res)
+				seelog.Debugf("insert %s to DB", res.Ip)
+			}
+		}(res)
 	}
-}
-
-func (verify *Verify) validation() {
-	go func() {
-		for res := range verify.saveChan {
-			go func(res *result.Result) {
-				if util.VerifyProxyIp(res.Ip, res.Port) {
-					_ = verify.s.AddOrUpdate(res.Ip, res)
-					seelog.Debugf("insert %s to DB", res.Ip)
-				}
-			}(res)
-		}
-	}()
-
-	go func() {
-		for res := range verify.deleteChan {
-			go func(res *result.Result) {
-				if !util.VerifyProxyIp(res.Ip, res.Port) {
-					verify.s.Delete(res.Ip)
-				}
-			}(res)
-		}
-	}()
 }
 
 // 先获取所有数据,然后对数据进行分块(chunkCount).然后通过 chunkCount个goroutine并发验证IP

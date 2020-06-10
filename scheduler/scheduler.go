@@ -14,6 +14,13 @@ import (
 
 func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 	var wg sync.WaitGroup
+
+	err := SetLogger(logConfigFile)
+	if err != nil {
+		panic(err)
+	}
+	defer seelog.Flush()
+
 	manager, err := collector.NewManager(collectorConfigFile)
 
 	if err != nil {
@@ -26,21 +33,15 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 	}
 
 	// 开始爬取
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 		manager.Run()
 	}()
 
-	err = SetLogger(logConfigFile)
-	if err != nil {
-		panic(err)
-	}
-	defer seelog.Flush()
-
 	// 把爬取的数据存下来
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 		err := verify.ValidationAndSave(manager.ResultChan(), s)
 		if err != nil {

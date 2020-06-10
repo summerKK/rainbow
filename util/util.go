@@ -60,7 +60,7 @@ func RandomUA() string {
 }
 
 func VerifyProxyIp(ip string, port int) bool {
-	if ip == "" || IsIp(ip) || port <= 0 {
+	if ip == "" || !IsIp(ip) || port <= 0 {
 		return false
 	}
 

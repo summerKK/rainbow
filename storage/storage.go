@@ -1,5 +1,7 @@
 package storage
 
+import "errors"
+
 type Storage interface {
 	Exist(k string) (ok bool)
 	Get(k string) (v string)
@@ -8,4 +10,12 @@ type Storage interface {
 	GetAll() (collection map[string]string)
 	Close()
 	GetRandomOne() (v string)
+}
+
+func NewStorage(path string, bucket string) (Storage, error) {
+	if path == "" || bucket == "" {
+		return nil, errors.New("nil path/bucket")
+	}
+
+	return NewBlotDbStorage(path, bucket)
 }

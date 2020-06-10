@@ -15,7 +15,7 @@ const chunkCount = 10
 
 // 先获取所有数据,然后对数据进行分块(chunkCount).然后通过 chunkCount个goroutine并发验证IP
 // 需要注意最后一次的分块可能小于标准分块数量.需要额外处理(len(collection) % chunkCount)
-func VerifyAndDelete(s storage.Storage) error {
+func ValidationAndDelete(s storage.Storage) error {
 	if s == nil {
 		return errors.New("nil storage")
 	}
@@ -62,11 +62,17 @@ func VerifyAndDelete(s storage.Storage) error {
 	return nil
 }
 
-func VerifyAndSave(resultChan <-chan *result.Result, s storage.Storage) {
+func ValidationAndSave(resultChan <-chan *result.Result, s storage.Storage) error {
+	if resultChan == nil || s == nil {
+		return errors.New("nil resultChan/storage")
+	}
+
 	for r := range resultChan {
 		if util.VerifyProxyIp(r.Ip, r.Port) {
 			_ = s.AddOrUpdate(r.Ip, r)
 			seelog.Debugf("insert %s to DB", r.Ip)
 		}
 	}
+
+	return nil
 }

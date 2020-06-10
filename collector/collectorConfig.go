@@ -2,6 +2,7 @@ package collector
 
 import (
 	"encoding/xml"
+	"errors"
 	"os"
 	"strings"
 )
@@ -63,4 +64,13 @@ func (s *Config) Verify() bool {
 	}
 
 	return true
+}
+
+func (s *Config) Collector() (Collector, error) {
+	switch s.Type {
+	case COLLECTOR_TYPE_SELECTOR:
+		return NewSelectorCollector(s), nil
+	default:
+		return nil, errors.New("不支持的类型")
+	}
 }

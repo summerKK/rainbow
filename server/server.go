@@ -9,7 +9,7 @@ import (
 	"rainbow/storage"
 )
 
-var s storage.Storage
+var storageDb storage.Storage
 
 type response struct {
 	Data    interface{} `json:"data"`
@@ -21,7 +21,7 @@ func NewServer(storage storage.Storage) error {
 	if storage == nil {
 		return errors.New("nil storage")
 	}
-	s = storage
+	storageDb = storage
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -43,7 +43,7 @@ func deleteIp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("content-type", "application/json")
 		values := r.URL.Query()
 		if _, ok := values["ip"]; ok {
-			s.Delete(values["ip"][0])
+			storageDb.Delete(values["ip"][0])
 		}
 		response := &response{
 			Data:    []string{},
@@ -61,10 +61,10 @@ func deleteIp(w http.ResponseWriter, r *http.Request) {
 func getIp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Header().Add("content-type", "application/json")
-		if s == nil {
+		if storageDb == nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		v := s.GetRandomOne()
+		v := storageDb.GetRandomOne()
 		response := &response{
 			Data:    v,
 			Code:    200,

@@ -1,9 +1,12 @@
 package collector
 
 import (
+	"fmt"
+	"os"
 	"sync"
 	"time"
 
+	"github.com/cihub/seelog"
 	"rainbow/result"
 )
 
@@ -14,18 +17,43 @@ type Manager struct {
 	doneChan   chan struct{}
 }
 
-func NewManager(collectors ...Collector) *Manager {
+func NewManager(collectorConfigFile string) (*Manager, error) {
+
+	if _, err := os.Stat(collectorConfigFile); os.IsNotExist(err) {
+		return nil, fmt.Errorf("%s not exists", collectorConfigFile)
+	}
+
+	configs := NewCollectorConfig(collectorConfigFile)
+	if len(configs.Configs) == 0 {
+		return nil, fmt.Errorf("%s parse failed", collectorConfigFile)
+	}
+
+	var collectors []Collector
+	for _, config := range configs.Configs {
+		collector, err := config.Collector()
+		if err != nil {
+			_ = seelog.Error(err)
+			continue
+		}
+		collectors = append(collectors, collector)
+	}
+
 	m := &Manager{
 		resultChan: make(chan *result.Result),
 		errorChan:  make(chan error),
 		collectors: collectors,
 	}
 
-	return m
+	return m, nil
 }
 
 func (m *Manager) Run() {
-	go func() {
+	defer func() {
+		close(m.resultChan)
+		close(m.errorChan)
+	}()
+
+	for {
 		var wg sync.WaitGroup
 		for _, collector := range m.collectors {
 			wg.Add(1)
@@ -33,11 +61,12 @@ func (m *Manager) Run() {
 				m.runCollector(c, &wg)
 			}(collector)
 		}
-		wg.Wait()
 
-		close(m.resultChan)
-		close(m.errorChan)
-	}()
+		wg.Wait()
+		// 所有网站都爬取完了,间歇30分钟
+		seelog.Info("所有网站都爬取完了,间歇30分钟")
+		time.Sleep(time.Minute * 30)
+	}
 }
 
 func (m *Manager) runCollector(collector Collector, wg *sync.WaitGroup) {

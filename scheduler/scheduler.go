@@ -45,6 +45,12 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 		panic(err)
 	}
 
+	go func() {
+		for err := range manager.ErrorChan() {
+			_ = seelog.Error(err)
+		}
+	}()
+
 	// 把爬取的数据存下来
 	wg.Add(1)
 	go func() {
@@ -59,6 +65,7 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 		for {
 			select {
 			case <-ticker.C:
+				seelog.Debugf("start verify ip...")
 				validation.ValidationAndDelete()
 			}
 		}
@@ -69,6 +76,17 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 		err := server.NewServer(s)
 		if err != nil {
 			panic(err)
+		}
+	}()
+
+	//  打印实时的ip数量
+	go func() {
+		ticker := time.NewTicker(time.Minute)
+		for {
+			select {
+			case <-ticker.C:
+				seelog.Debugf("当前ip数量:%d", s.Len())
+			}
 		}
 	}()
 

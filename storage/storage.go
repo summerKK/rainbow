@@ -10,6 +10,7 @@ type Storage interface {
 	GetAll() (collection map[string]string)
 	Close()
 	GetRandomOne() (v string)
+	Len() uint64
 }
 
 func NewStorage(path string, bucket string) (Storage, error) {

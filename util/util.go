@@ -13,6 +13,8 @@ import (
 	"github.com/parnurzeal/gorequest"
 )
 
+var ipRegex = regexp.MustCompile("^((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))")
+
 func MakeUrls(urlFormat string, params []string) (urls []string, err error) {
 	if urlFormat == "" {
 		err = errors.New("urlFormat 不能为空")
@@ -84,16 +86,14 @@ func VerifyProxyIp(ip string, port int) bool {
 
 // IsIp will match the given parameter is ip address or not.
 func IsIp(ip string) bool {
-	return IsInputMatchRegex(ip,
-		"^((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))")
+	return IsInputMatchRegex(ip, ipRegex)
 }
 
 // IsInputMatchRegex will verify the input string is match the regex or not.
 // This function will recover the panic if regex can't be parsed.
-func IsInputMatchRegex(input, regex string) bool {
+func IsInputMatchRegex(input string, regex *regexp.Regexp) bool {
 	result := false
-	reg := regexp.MustCompile(regex)
-	result = reg.MatchString(input)
+	result = regex.MatchString(input)
 
 	defer func() {
 		r := recover()

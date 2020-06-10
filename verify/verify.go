@@ -53,6 +53,7 @@ func (verify *Verify) ValidationAndDelete() {
 
 			if !util.VerifyProxyIp(res.Ip, res.Port) {
 				verify.s.Delete(res.Ip)
+				seelog.Debugf("delete %s from DB", res.Ip)
 			}
 		}()
 	}
@@ -69,6 +70,8 @@ func (verify *Verify) ValidationAndSave() {
 			if util.VerifyProxyIp(res.Ip, res.Port) {
 				_ = verify.s.AddOrUpdate(res.Ip, res)
 				seelog.Debugf("insert %s to DB", res.Ip)
+			} else {
+				seelog.Debugf("ignore %s", res.Ip)
 			}
 		}(res)
 	}

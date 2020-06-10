@@ -172,3 +172,7 @@ func (b *BoltDbStorage) sync() error {
 
 	return err
 }
+
+func (b *BoltDbStorage) Len() uint64 {
+	return b.count
+}

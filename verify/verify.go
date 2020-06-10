@@ -39,23 +39,24 @@ func NewVerify(resultChan <-chan *result.Result, s storage.Storage) (v *Verify, 
 
 func (verify *Verify) ValidationAndDelete() {
 	collection := verify.s.GetAll()
-	var res result.Result
 	for _, v := range collection {
-		err := json.Unmarshal([]byte(v), &res)
-		if err != nil {
-			continue
-		}
 		verify.deleteChan <- struct{}{}
-		go func() {
+		go func(v string) {
 			defer func() {
 				<-verify.deleteChan
 			}()
+
+			var res result.Result
+			err := json.Unmarshal([]byte(v), &res)
+			if err != nil {
+				return
+			}
 
 			if !util.VerifyProxyIp(res.Ip, res.Port) {
 				verify.s.Delete(res.Ip)
 				seelog.Debugf("delete %s from DB", res.Ip)
 			}
-		}()
+		}(v)
 	}
 }
 

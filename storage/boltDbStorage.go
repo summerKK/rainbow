@@ -132,7 +132,12 @@ func (b *BoltDbStorage) GetRandomOne() (v string) {
 	var defaultKey string
 	var randomKey string
 	rand.Seed(time.Now().Unix())
-	n := rand.Intn(int(b.count))
+	var n int
+	if b.count > 0 {
+		n = rand.Intn(int(b.count))
+	} else {
+		n = 0
+	}
 	b.content.Range(func(key, value interface{}) bool {
 		if defaultKey == "" {
 			defaultKey = key.(string)
@@ -158,7 +163,7 @@ func (b *BoltDbStorage) sync() error {
 			copy(key, k)
 			copy(value, v)
 			b.content.Store(string(key), string(value))
-
+			atomic.AddUint64(&b.count, 1)
 			return nil
 		})
 

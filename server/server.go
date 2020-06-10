@@ -6,15 +6,16 @@ import (
 	"net/http"
 
 	"github.com/cihub/seelog"
+	"rainbow/result"
 	"rainbow/storage"
 )
 
 var storageDb storage.Storage
 
 type response struct {
-	Data    interface{} `json:"data"`
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Data    result.Result `json:"data"`
+	Code    int           `json:"code"`
+	Message string        `json:"message"`
 }
 
 func NewServer(storage storage.Storage) error {
@@ -46,7 +47,6 @@ func deleteIp(w http.ResponseWriter, r *http.Request) {
 			storageDb.Delete(values["ip"][0])
 		}
 		response := &response{
-			Data:    []string{},
 			Code:    200,
 			Message: "success",
 		}
@@ -64,12 +64,23 @@ func getIp(w http.ResponseWriter, r *http.Request) {
 		if storageDb == nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		v := storageDb.GetRandomOne()
+
 		response := &response{
-			Data:    v,
 			Code:    200,
 			Message: "success",
 		}
+
+		v := storageDb.GetRandomOne()
+		var res result.Result
+		err := json.Unmarshal([]byte(v), &res)
+		if err != nil {
+			_ = seelog.Errorf("json unmarshal error:%v,json:%s", err, v)
+			response.Code = 400
+			response.Message = "获取失败请重试!"
+		} else {
+			response.Data = res
+		}
+
 		b, _ := json.Marshal(response)
 		_, _ = w.Write(b)
 	} else {

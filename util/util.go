@@ -4,8 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/parnurzeal/gorequest"
 )
 
 func MakeUrls(urlFormat string, params []string) (urls []string, err error) {
@@ -52,4 +57,51 @@ func RandomUA() string {
 	}
 
 	return userAgent[rand.New(rand.NewSource(time.Now().Unix())).Intn(len(userAgent))]
+}
+
+func VerifyProxyIp(ip string, port int) bool {
+	if ip == "" || IsIp(ip) || port <= 0 {
+		return false
+	}
+
+	proxyStr := "http://" + ip + ":" + strconv.Itoa(port)
+	response, _, errs := gorequest.New().
+		Proxy(proxyStr).
+		Get("http://httpbin.org/get").
+		Timeout(time.Second * 6).
+		End()
+	if len(errs) > 0 {
+		return false
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return false
+	}
+
+	return true
+}
+
+// IsIp will match the given parameter is ip address or not.
+func IsIp(ip string) bool {
+	return IsInputMatchRegex(ip,
+		"^((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))")
+}
+
+// IsInputMatchRegex will verify the input string is match the regex or not.
+// This function will recover the panic if regex can't be parsed.
+func IsInputMatchRegex(input, regex string) bool {
+	result := false
+	reg := regexp.MustCompile(regex)
+	result = reg.MatchString(input)
+
+	defer func() {
+		r := recover()
+		if r != nil {
+			result = false
+			fmt.Println(r)
+		}
+	}()
+
+	return result
 }

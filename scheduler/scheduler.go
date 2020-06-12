@@ -60,12 +60,15 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 
 	// 监控ip是否有效
 	go func() {
+		seelog.Infof("start verify ip...")
+		validation.ValidationAndDelete()
+
 		ticker := time.NewTicker(time.Minute * 10)
 		defer ticker.Stop()
 		for {
 			select {
 			case <-ticker.C:
-				seelog.Debugf("start verify ip...")
+				seelog.Infof("start verify ip...")
 				validation.ValidationAndDelete()
 			}
 		}
@@ -81,11 +84,12 @@ func Run(logConfigFile, collectorConfigFile, path, bucket string) {
 
 	//  打印实时的ip数量
 	go func() {
+		seelog.Infof("当前ip数量:%d", s.Len())
 		ticker := time.NewTicker(time.Minute)
 		for {
 			select {
 			case <-ticker.C:
-				seelog.Debugf("当前ip数量:%d", s.Len())
+				seelog.Infof("当前ip数量:%d", s.Len())
 			}
 		}
 	}()

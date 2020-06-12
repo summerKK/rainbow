@@ -67,6 +67,8 @@ func newSubCollector(config *Config, t Type) (*subCollector, error) {
 
 func (s *subCollector) Next() (b bool) {
 	if s.currentIndex >= len(s.urls) {
+		// 重置url,等待下次爬取
+		s.currentIndex = 0
 		return false
 	}
 	s.currentUrl = s.urls[s.currentIndex]

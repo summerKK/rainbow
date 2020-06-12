@@ -1,38 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configs>
     <config name="89ip">
-        <urlFormat>
-            http://www.89ip.cn/tiqv.php?sxb=&amp;tqsl=20&amp;ports=&amp;ktip=&amp;xl=on&amp;submit=%CC%E1++%C8%A1
-        </urlFormat>
-        <collectType>1</collectType>
-        <charset>utf-8</charset>
-        <valueNameRuleMap>
-            <item name="ip"
-                  rule="((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))):[1-9]\d*"/>
-        </valueNameRuleMap>
-    </config>
-    <config name="data5u">
-        <urlFormat>http://www.data5u.com/free/%s</urlFormat>
-        <urlParameters>index.shtml,gngn/index.shtml,gnpt/index.shtml,gwgn/index.shtml,gwpt/index.shtml</urlParameters>
+        <urlFormat>http://www.89ip.cn/index_%s.html</urlFormat>
+        <urlParameters>1,2,3,4,5,6,7,8,9,10</urlParameters>
         <collectType>0</collectType>
         <charset>utf-8</charset>
         <valueNameRuleMap>
-            <item name="$position" rule=".l2"/>
-            <item name="ip" rule="span:nth-child(1) li"/>
-            <item name="port" rule="span:nth-child(2) li"/>
-            <item name="speed" rule="span:nth-child(8) li"/>
-        </valueNameRuleMap>
-    </config>
-    <config name="ip181">
-        <urlFormat>http://www.ip181.com/</urlFormat>
-        <collectType>0</collectType>
-        <charset>gbk</charset>
-        <valueNameRuleMap>
-            <item name="$position" rule=".ctable tr:not(:first-child)"/>
+            <item name="$position" rule="div.layui-row.layui-col-space15 > div.layui-col-md8 tr:not(:first-child)"/>
             <item name="ip" rule="td:nth-child(1)"/>
             <item name="port" rule="td:nth-child(2)"/>
-            <item name="speed" rule="td:nth-child(5)"/>
-            <item name="location" rule="td:nth-child(6)"/>
+            <item name="location" rule="td:nth-child(3)"/>
         </valueNameRuleMap>
     </config>
     <config name="ip3366">
@@ -48,7 +25,7 @@
             <item name="speed" rule="td:nth-child(7)"/>
         </valueNameRuleMap>
     </config>
-    <config name="kuaidaili">
+    <config name="kuaidaili0">
         <urlFormat>https://www.kuaidaili.com/free/intr/%s</urlFormat>
         <urlParameters>1,2,3,4,5,6,7,8,9,10</urlParameters>
         <collectType>0</collectType>
@@ -61,8 +38,34 @@
             <item name="speed" rule="td:nth-child(6)"/>
         </valueNameRuleMap>
     </config>
-    <config name="xicidaili">
+    <config name="kuaidaili1">
+        <urlFormat>https://www.kuaidaili.com/free/inha/%s</urlFormat>
+        <urlParameters>1,2,3,4,5,6,7,8,9,10</urlParameters>
+        <collectType>0</collectType>
+        <charset>utf-8</charset>
+        <valueNameRuleMap>
+            <item name="$position" rule="#list tr:not(:first-child)"/>
+            <item name="ip" rule="td:nth-child(1)"/>
+            <item name="port" rule="td:nth-child(2)"/>
+            <item name="location" rule="td:nth-child(5)"/>
+            <item name="speed" rule="td:nth-child(6)"/>
+        </valueNameRuleMap>
+    </config>
+    <config name="xicidaili0">
         <urlFormat>http://www.xicidaili.com/nn/%s</urlFormat>
+        <urlParameters>1,2,3</urlParameters>
+        <collectType>0</collectType>
+        <charset>utf-8</charset>
+        <valueNameRuleMap>
+            <item name="$position" rule="#ip_list tr:not(:first-child)"/>
+            <item name="ip" rule="td:nth-child(2)"/>
+            <item name="port" rule="td:nth-child(3)"/>
+            <item name="location" rule="td:nth-child(4) a"/>
+            <item name="speed" rule="td:nth-child(7) div" attribute="title"/>
+        </valueNameRuleMap>
+    </config>
+    <config name="xicidaili1">
+        <urlFormat>http://www.xicidaili.com/nt/%s</urlFormat>
         <urlParameters>1,2,3</urlParameters>
         <collectType>0</collectType>
         <charset>utf-8</charset>

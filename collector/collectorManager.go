@@ -64,8 +64,8 @@ func (m *Manager) Run() {
 
 		wg.Wait()
 		// 所有网站都爬取完了,间歇30分钟
-		seelog.Info("所有网站都爬取完了,间歇30分钟")
-		time.Sleep(time.Minute * 30)
+		seelog.Info("所有网站都爬取完了,间歇15分钟")
+		time.Sleep(time.Minute * 15)
 	}
 }
 
